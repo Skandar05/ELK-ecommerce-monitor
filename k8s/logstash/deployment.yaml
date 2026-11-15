@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: logstash
+  namespace: logcommerce
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: logstash
+  template:
+    metadata:
+      labels:
+        app: logstash
+    spec:
+      securityContext:
+        fsGroup: 1000
+      containers:
+        - name: logstash
+          image: docker.elastic.co/logstash/logstash:8.17.0
+          ports:
+            - name: tcp-input
+              containerPort: 5000
+              protocol: TCP
+            - name: monitoring
+              containerPort: 9600
+              protocol: TCP
+          env:
+            - name: ELASTICSEARCH_HOSTS
+              value: http://elasticsearch:9200
+          resources:
+            requests:
+              cpu: 250m
+              memory: 512Mi
+            limits:
+              memory: 1Gi
+          volumeMounts:
+            - name: pipeline
+              mountPath: /usr/share/logstash/pipeline
+              readOnly: true
+            - name: data
+              mountPath: /usr/share/logstash/data
+          startupProbe:
+            tcpSocket:
+              port: monitoring
+            periodSeconds: 10
+            failureThreshold: 30
+          readinessProbe:
+            tcpSocket:
+              port: monitoring
+            periodSeconds: 10
+            failureThreshold: 6
+          livenessProbe:
+            tcpSocket:
+              port: monitoring
+            periodSeconds: 20
+            failureThreshold: 3
+      volumes:
+        - name: pipeline
+          configMap:
+            name: logstash-pipeline
+        - name: data
+          persistentVolumeClaim:
+            claimName: logstash-data

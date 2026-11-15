@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: elasticsearch-config
+  namespace: logcommerce
+data:
+  elasticsearch.yml: |
+    cluster.name: logcommerce
+    network.host: 0.0.0.0
+    discovery.type: single-node
+    node.store.allow_mmap: false
+    xpack.security.enabled: false
