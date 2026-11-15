@@ -16,7 +16,7 @@ jobs:
       # 1. Get project source code
       - name: Checkout code
         uses: actions/checkout@v4
-
+ 
       # 2. Install Python
       - name: Set up Python
         uses: actions/setup-python@v5
