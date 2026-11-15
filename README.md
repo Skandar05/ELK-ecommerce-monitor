@@ -50,9 +50,9 @@ Concevoir, développer et déployer une plateforme qui :
 
 Les manifests sont séparés par service dans `k8s/` : chaque dossier contient ses
 propres fichiers de configuration, Service, Deployment ou StatefulSet et PVC.
-L'ensemble déploie Elasticsearch, Logstash, Kibana, MongoDB, Redis, l'application
-Flask et une ressource Ingress dans le namespace `logcommerce`. Le cluster doit
-fournir une StorageClass par défaut.
+La configuration de chaque pipeline Logstash est dans un fichier `.conf` dédié
+sous `k8s/logstash/pipeline/`. Kustomize les regroupe dans la ConfigMap montée par
+Logstash. Le cluster doit fournir une StorageClass par défaut.
 
 Avant le déploiement :
 
@@ -66,13 +66,15 @@ Avant le déploiement :
    .\scripts\create-k8s-secrets.ps1
    ```
 
-3. Appliquez les manifests :
+3. Appliquez les services de base (Elasticsearch, Logstash, Kibana, MongoDB et
+   Redis) :
 
    ```powershell
-   kubectl apply -R -f k8s/
+   kubectl apply -k k8s/
    ```
 
-L'option `-R` est nécessaire, car les manifests sont organisés en sous-dossiers.
+L'application Flask et l'Ingress restent optionnels et ne sont pas inclus dans
+`k8s/kustomization.yaml`.
 Le service Elasticsearch est configuré sans authentification pour ce déploiement
 local et n'est exposé qu'en `ClusterIP`. Le Secret contient les identifiants
 MongoDB, Redis et la clé Flask. Installez également un contrôleur
