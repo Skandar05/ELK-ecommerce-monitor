@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: logstash
+  namespace: logcommerce
+spec:
+  type: ClusterIP
+  selector:
+    app: logstash
+  ports:
+    - name: tcp-input
+      protocol: TCP
+      port: 5000
+      targetPort: tcp-input

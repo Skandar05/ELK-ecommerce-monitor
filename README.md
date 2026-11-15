@@ -46,5 +46,41 @@ Concevoir, développer et déployer une plateforme qui :
 | Frontend | HTML5, CSS3, JavaScript, Bootstrap 5, Chart.js, DataTables | Interface responsive |
 | Conteneurisation | Docker, Docker Compose | Orchestration de tous les services |
 
+## 4. Déploiement Kubernetes
+
+Les manifests sont séparés par service dans `k8s/` : chaque dossier contient ses
+propres fichiers de configuration, Service, Deployment ou StatefulSet et PVC.
+L'ensemble déploie Elasticsearch, Logstash, Kibana, MongoDB, Redis, l'application
+Flask et une ressource Ingress dans le namespace `logcommerce`. Le cluster doit
+fournir une StorageClass par défaut.
+
+Avant le déploiement :
+
+1. Remplacez `logcommerce-webapp:latest` dans
+   `k8s/webapp/deployment.yaml` par l'image Flask existante. Elle doit écouter
+   sur le port `5000`.
+2. Créez le Secret localement. Les identifiants générés ne sont pas enregistrés
+   dans Git :
+
+   ```powershell
+   .\scripts\create-k8s-secrets.ps1
+   ```
+
+3. Appliquez les manifests :
+
+   ```powershell
+   kubectl apply -R -f k8s/
+   ```
+
+L'option `-R` est nécessaire, car les manifests sont organisés en sous-dossiers.
+Le service Elasticsearch est configuré sans authentification pour ce déploiement
+local et n'est exposé qu'en `ClusterIP`. Le Secret contient les identifiants
+MongoDB, Redis et la clé Flask. Installez également un contrôleur
+`ingress-nginx` dans le cluster ; l'Ingress publie l'application sur
+`http://logcommerce.local/` et Kibana sous `/kibana`.
+
+Logstash reçoit des événements JSON Lines par TCP sur le port `5000` et les
+indexe dans Elasticsearch sous `ecommerce-logs-*`. Vérifiez le déploiement avec
+`kubectl get pods,svc,pvc -n logcommerce`.
 
 
