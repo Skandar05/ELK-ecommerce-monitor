@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
         - name: webapp
-          image: logcommerce-webapp:latest
+          image: skandar55/monitoring-backend:latest
           imagePullPolicy: IfNotPresent
           ports:
             - name: http
