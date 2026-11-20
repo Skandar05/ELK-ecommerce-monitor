@@ -61,3 +61,49 @@ jobs:
 
       - name: docker push
         run: docker push skandar55/monitoring-backend:latest
+
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: App/frontend
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USER }}
+          password: ${{ secrets.DOCKER_PASS }}
+
+      - name: Docker Build
+        run: docker build -t skandar55/monitoring-frontend:latest .
+
+ 
+      - name: Trivy Scan Frontend
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: skandar55/monitoring-frontend:latest
+          severity: CRITICAL
+          exit-code: 1
+
+      - name: docker push
+        run: docker push skandar55/monitoring-frontend:latest
+
+
+
+
+
