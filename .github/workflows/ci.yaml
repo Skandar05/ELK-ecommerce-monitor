@@ -8,6 +8,7 @@ on:
   pull_request:
     branches: [dev]
 
+# La partie backend
 jobs:
   backend:
     runs-on: ubuntu-latest
@@ -40,7 +41,7 @@ jobs:
         run: |
           python -c "from app import app; client = app.test_client(); response = client.get('/'); assert response.status_code == 200"
       
-
+      # 6. Connexion à Docker Hub
 
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
@@ -48,19 +49,24 @@ jobs:
           username: ${{ secrets.DOCKER_USER }}
           password: ${{ secrets.DOCKER_PASS }}
 
+      # 7. Construire l'image Docker
+
       - name: Docker Build
         run: docker build -t skandar55/monitoring-backend:latest .
 
- 
+      # 8. Scanner l'image avec Trivy
+
       - name: Trivy Scan Backend
         uses: aquasecurity/trivy-action@master
         with:
           image-ref: skandar55/monitoring-backend:latest
           severity: CRITICAL
           exit-code: 1
-
+      # 9. Publier l'image sur Docker Hub
       - name: docker push
         run: docker push skandar55/monitoring-backend:latest
+
+  # La partie Frontend
 
   frontend:
     runs-on: ubuntu-latest
@@ -69,37 +75,42 @@ jobs:
         working-directory: App/frontend
 
     steps:
+    # 1. Get project source code
       - name: Checkout
         uses: actions/checkout@v4
+      # 2. Install node.js
 
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 20
+      # 3. Install dependencies
 
       - name: Install Dependencies
         run: npm install
+      # 4. test Lint
 
       - name: Lint
         run: npm run lint
+      # 5. Connexion à Docker Hub
 
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USER }}
           password: ${{ secrets.DOCKER_PASS }}
-
+      # 6. Construire l'image Docker
       - name: Docker Build
         run: docker build -t skandar55/monitoring-frontend:latest .
 
- 
+      # 7. Scanner l'image avec Trivy
       - name: Trivy Scan Frontend
         uses: aquasecurity/trivy-action@master
         with:
           image-ref: skandar55/monitoring-frontend:latest
           severity: CRITICAL
           exit-code: 1
-
+      # 8. Publier l'image sur Docker Hub
       - name: docker push
         run: docker push skandar55/monitoring-frontend:latest
 

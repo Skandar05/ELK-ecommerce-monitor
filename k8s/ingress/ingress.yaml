@@ -15,6 +15,13 @@ spec:
             pathType: Prefix
             backend:
               service:
+                name: frontend
+                port:
+                  number: 5143
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
                 name: webapp
                 port:
                   number: 5000
