@@ -8,14 +8,14 @@ def home():
     return "Welcome to my Flask application!"
 
 # Hello route
-@app.route("/hello")
+@app.route("/api/hello")
 def hello():
     return jsonify({
         "message": "Hello from Flask!"
     })
 
 # Users route
-@app.route("/users")
+@app.route("/api/users")
 def get_users():
     users = [
         {"id": 1, "name": "Ahmed"},
