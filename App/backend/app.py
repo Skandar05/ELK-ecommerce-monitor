@@ -1,6 +1,7 @@
+from apiflask import APIFlask
 from flask import Flask, jsonify
 
-app = Flask(__name__)
+app = APIFlask(__name__)
 
 # Home route
 @app.route("/")
